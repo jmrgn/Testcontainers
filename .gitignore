@@ -57,4 +57,3 @@ nunit-*.xml
 *.vs
 
 *.claude
-*/.settings.local.json
