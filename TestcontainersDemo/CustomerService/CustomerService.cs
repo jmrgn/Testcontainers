@@ -30,9 +30,6 @@ public class CustomerServiceManager : ICustomerServiceManager
             throw new InvalidOperationException($"Customer with ID {review.CustomerId} not found");
         }
 
-        // Don't assign the customer navigation property - EF Core will handle the relationship via CustomerId
-        // Assigning it would cause EF to try to re-insert the customer
-
         return await _reviewHandler.AddReviewAsync(review, cancellationToken);
     }
 

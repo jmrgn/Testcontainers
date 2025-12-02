@@ -15,6 +15,7 @@ public class CustomerServiceDBContext : DbContext, IDataProtectionKeyContext
 
     public virtual DbSet<Customer> Customers => Set<Customer>();
     public virtual DbSet<Review> Reviews => Set<Review>();
+    public virtual DbSet<Comment> Comments => Set<Comment>();
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
     internal IQueryable<Customer> RebateSettingsQuery => Customers;
@@ -27,5 +28,6 @@ public class CustomerServiceDBContext : DbContext, IDataProtectionKeyContext
         // Apply entity type configurations
         modelBuilder.ApplyConfiguration(new CustomerConfiguration());
         modelBuilder.ApplyConfiguration(new ReviewConfiguration());
+        modelBuilder.ApplyConfiguration(new CommentConfiguration());
     }
 }

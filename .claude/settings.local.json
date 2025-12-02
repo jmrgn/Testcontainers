@@ -9,7 +9,9 @@
       "Bash(dotnet add:*)",
       "Bash(dotnet build:*)",
       "Bash(dotnet remove:*)",
-      "Bash(dotnet test:*)"
+      "Bash(dotnet test:*)",
+      "Bash(nul)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []

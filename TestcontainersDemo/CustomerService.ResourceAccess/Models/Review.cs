@@ -14,8 +14,7 @@ namespace CustomerService.ResourceAccess.Models
         public long CustomerId { get; set; }
         public Customer Customer { get; set; } = new();
 
-        [Column("Comments")]
-        public string Comments { get; set; } = String.Empty;
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
         [Column("Rating")]
         public ReviewRating Rating { get; set; }

@@ -90,18 +90,26 @@ namespace CustomerService.Commands
                         var review = new Review
                         {
                             CustomerId = customerId,
-                            Rating = rating,
-                            Comments = comment
+                            Rating = rating
                         };
 
                         var addedReview = await customerService.AddReviewAsync(review);
+
+                        // Add the initial comment using SupportServiceManager
+                        var commentHandler = new CommentHandler(context);
+                        var supportService = new SupportServiceManager(commentHandler, reviewHandler);
+                        var addedComment = await supportService.AddCommentAsync(
+                            addedReview.Id,
+                            comment,
+                            "System"
+                        );
 
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine($"✓ Review added successfully!");
                         Console.WriteLine($"  Review ID: {addedReview.Id}");
                         Console.WriteLine($"  Customer: {customer.Name}");
                         Console.WriteLine($"  Rating: {addedReview.Rating}");
-                        Console.WriteLine($"  Comment: {addedReview.Comments}");
+                        Console.WriteLine($"  Comment: {addedComment.CommentText}");
                         Console.ResetColor();
                     }
                     catch (Exception ex)
