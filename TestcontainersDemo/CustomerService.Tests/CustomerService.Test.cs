@@ -18,8 +18,10 @@ namespace CustomerService.Tests;
 
 public sealed class MsSqlTests : IAsyncLifetime
 {
-    private readonly MsSqlContainer _msSqlContainer = new MsSqlBuilder()
-        .WithName("CustomerReviewTestDB")
+    internal readonly MsSqlContainer _msSqlContainer = new MsSqlBuilder()
+        .WithName("TestContainerDB")
+        .WithLabel("reuse-id", "TestContainerDB")
+        .WithReuse(true)
         .Build();
 
     public Task InitializeAsync()
@@ -37,6 +39,7 @@ public sealed class MsSqlTests : IAsyncLifetime
         public IServiceProvider ServiceProvider { get; }
         private readonly CustomerServiceDBContext _dbContext;
         private readonly ICustomerServiceManager _customerServiceManager;
+        private readonly ISupportServiceManager _supportServiceManager;
 
         public CustomerServiceTests(MsSqlTests fixture)
         {
@@ -47,9 +50,13 @@ public sealed class MsSqlTests : IAsyncLifetime
                 _dbContext = ServiceProvider.GetRequiredService<CustomerServiceDBContext>();
                 _customerServiceManager =
                     ServiceProvider.GetRequiredService<ICustomerServiceManager>();
+                _supportServiceManager =
+                    ServiceProvider.GetRequiredService<ISupportServiceManager>();
 
                 // Create the database schema (tables, indexes, etc.)
+                _dbContext.Database.EnsureDeleted();
                 _dbContext.Database.EnsureCreated();
+                _dbContext.ChangeTracker.Clear();
             }
             catch (Exception ex)
             {
@@ -95,7 +102,9 @@ public sealed class MsSqlTests : IAsyncLifetime
                     )
                     .AddScoped<CustomerHandler>()
                     .AddScoped<ReviewHandler>()
-                    .AddScoped<ICustomerServiceManager, CustomerServiceManager>();
+                    .AddScoped<CommentHandler>()
+                    .AddScoped<ICustomerServiceManager, CustomerServiceManager>()
+                    .AddScoped<ISupportServiceManager, SupportServiceManager>();
                 return serviceCollection.BuildServiceProvider();
             }
         }
@@ -130,21 +139,31 @@ public sealed class MsSqlTests : IAsyncLifetime
             var review = new Review
             {
                 CustomerId = customer.Id,
-                Rating = ReviewRating.Excellent,
-                Comments = "Build DAAAAAAAAAAAAAAY!!!"
+                Rating = ReviewRating.Excellent
             };
             var result = await _customerServiceManager.AddReviewAsync(
                 review,
                 CancellationToken.None
             );
 
+            // Add a comment to the review
+            var commentText = "Build DAAAAAAAAAAAAAAY!!!";
+            var comment = await _supportServiceManager.AddCommentAsync(
+                result.Id,
+                commentText,
+                "Test User",
+                CancellationToken.None
+            );
 
             var actualFromDb = await _customerServiceManager.GetReviewAsync(
                 result.Id,
                 CancellationToken.None
             );
             Assert.NotNull(result);
-            Assert.Equal(review.Comments, actualFromDb.Comments);
+            Assert.NotNull(comment);
+            Assert.Equal(commentText, comment.CommentText);
+            Assert.Single(actualFromDb.Comments);
+            Assert.Equal(commentText, actualFromDb.Comments.First().CommentText);
         }
         
         #endregion

@@ -29,6 +29,7 @@ public class ReviewHandler
     {
         return await _dbContext.Reviews
             .Include(r => r.Customer)
+            .Include(r => r.Comments)
             .FirstOrDefaultAsync(r => r.Id == reviewId, cancellationToken);
     }
 
@@ -38,6 +39,7 @@ public class ReviewHandler
     {
         return await _dbContext.Reviews
             .Include(r => r.Customer)
+            .Include(r => r.Comments)
             .ToListAsync(cancellationToken);
     }
 
@@ -48,6 +50,7 @@ public class ReviewHandler
     {
         return await _dbContext
             .Reviews.Include(r => r.Customer)
+            .Include(r => r.Comments)
             .Where(r => r.CustomerId == customerId)
             .ToListAsync(cancellationToken);
     }
@@ -59,6 +62,7 @@ public class ReviewHandler
     {
         return await _dbContext
             .Reviews.Include(r => r.Customer)
+            .Include(r => r.Comments)
             .Where(r => r.Rating == rating)
             .ToListAsync(cancellationToken);
     }
@@ -73,6 +77,7 @@ public class ReviewHandler
 
         return await _dbContext
             .Reviews.Include(r => r.Customer)
+            .Include(r => r.Comments)
             .Where(r => r.Id == review.Id)
             .FirstAsync(cancellationToken);
     }

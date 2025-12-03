@@ -12,13 +12,17 @@ namespace CustomerService.ResourceAccess.EntityTypeConfigurations
 
             builder.Property(x => x.Id).HasColumnName("ReviewId");
             builder.Property(x => x.CustomerId).HasColumnName("CustomerId");
-            builder.Property(x => x.Comments).HasColumnName("Comments").IsRequired();
             builder.Property(x => x.Rating).HasColumnName("Rating").HasConversion<int>();
 
             builder
                 .HasOne(x => x.Customer)
                 .WithMany()
                 .HasForeignKey(x => x.CustomerId);
+
+            builder
+                .HasMany(x => x.Comments)
+                .WithOne(c => c.Review)
+                .HasForeignKey(c => c.ReviewId);
         }
     }
 }
